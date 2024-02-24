@@ -34,6 +34,7 @@ const generateUrl = async (params, campaign_uuid, campaign_name, redirect, banne
     api_key,
     timestamp: ts,
     campaign_uuid,
+    wallet_address: params.walletConnected,
     event_type: "CLICK",
     page_name: window.location.pathname,
     slot_id: params.slotId,
@@ -132,7 +133,7 @@ const GetitAdPlugin = (props) => {
           borderRadius: "10px",
         }}
       >
-        <a
+        <a style={{cursor: 'pointer'}}
           onClick={async () =>
             await generateUrl(props, useCompany, useCompanyName, useRedirect, bannerUUID)
           }
