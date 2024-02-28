@@ -40,21 +40,6 @@ const generateUrl = async (params, campaign_uuid, campaign_name, redirect, banne
     slot_id: params.slotId,
     banner_uuid: banner_uuid ? banner_uuid : '0000-0000-0000-0000'
   });
-  window.open(
-    redirect +
-      "?utm_campaign=" +
-      campaign_name +
-      "&" +
-      "utm_content=" +
-      (params.isMobile ? "270" : "728") +
-      "&" +
-      "slot_id=" +
-      params.slotId +
-      "&" +
-      "utm_source=" +
-      curUrl,
-    "_blank"
-  );
 };
 
 const OS = {
@@ -91,7 +76,7 @@ const GetitAdPlugin = (props) => {
 
   useEffect(() => {
     const init = async () => {
-      const isMobile = getUserDevice();
+      const isMobile = props.isMobile ? props.isMobile : getUserDevice();
       setUserDevice(isMobile);
       const data = await getImage(props, isMobile);
       if (!data) {
@@ -134,6 +119,21 @@ const GetitAdPlugin = (props) => {
         }}
       >
         <a style={{cursor: 'pointer'}}
+        href={
+      useRedirect +
+      "?utm_campaign=" +
+      useCompanyName +
+      "&" +
+      "utm_content=" +
+      (props.isMobile ? "270" : "728") +
+      "&" +
+      "slot_id=" +
+      props.slotId +
+      "&" +
+      "utm_source=" +
+      window.location.href
+      }
+      target="_blank"
           onClick={async () =>
             await generateUrl(props, useCompany, useCompanyName, useRedirect, bannerUUID)
           }
