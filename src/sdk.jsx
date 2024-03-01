@@ -20,7 +20,7 @@ const getImage = async (params, isMobile) => {
     timestamp: ts,
     api_key,
     image_type: isMobile ? "MOBILE" : "DESKTOP",
-    page_name: window.location.pathname,
+    page_name: 'getit',
     slot_id: params.slotId,
   });
   return data.data;
@@ -36,7 +36,7 @@ const generateUrl = async (params, campaign_uuid, campaign_name, redirect, banne
     campaign_uuid,
     wallet_address: params.walletConnected,
     event_type: "CLICK",
-    page_name: window.location.pathname,
+    page_name: 'getit',
     slot_id: params.slotId,
     banner_uuid: banner_uuid ? banner_uuid : '0000-0000-0000-0000'
   });
@@ -72,6 +72,7 @@ const GetitAdPlugin = (props) => {
   const [useCompanyName, setCompanyName] = useState("");
   const [userDevice, setUserDevice] = useState(false);
   const [bannerUUID, setBannerUUID] = useState('0000-0000-0000-0000');
+  const [bannerName, setBannerName] = useState('');
   const [height, setHeight] = useState('0');
 
   useEffect(() => {
@@ -87,6 +88,7 @@ const GetitAdPlugin = (props) => {
       setRedirect(data.redirect_link);
       setCompany(data.campaign_uuid);
       setCompanyName(data.campaign_name);
+      setBannerName(data.banner_name);
       if(data?.banner_uuid) {
         setBannerUUID(data.banner_uuid)
       }
@@ -120,19 +122,22 @@ const GetitAdPlugin = (props) => {
       >
         <a style={{cursor: 'pointer'}}
         href={
-      useRedirect +
-      "?utm_campaign=" +
-      useCompanyName +
-      "&" +
-      "utm_content=" +
-      (props.isMobile ? "270" : "728") +
-      "&" +
-      "slot_id=" +
-      props.slotId +
-      "&" +
-      "utm_source=" +
-      window.location.href
-      }
+            useRedirect +
+            "?utm_campaign=" +
+            useCompanyName +
+            "&" +
+            "utm_content=" +
+            // (props.isMobile ? "270" : "728") 
+            bannerName
+            +
+            // "&" +
+            // "slot_id=" +
+            // props.slotId +
+            "&" +
+            "utm_source=" +
+            // window.location.href
+            'getit'
+          }
       target="_blank"
           onClick={async () =>
             await generateUrl(props, useCompany, useCompanyName, useRedirect, bannerUUID)
