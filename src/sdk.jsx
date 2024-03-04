@@ -20,7 +20,7 @@ const getImage = async (params, isMobile) => {
     timestamp: ts,
     api_key,
     image_type: isMobile ? "MOBILE" : "DESKTOP",
-    page_name: 'getit',
+    page_name: window.location.pathname,
     slot_id: params.slotId,
   });
   return data.data;
@@ -36,7 +36,7 @@ const generateUrl = async (params, campaign_uuid, campaign_name, redirect, banne
     campaign_uuid,
     wallet_address: params.walletConnected,
     event_type: "CLICK",
-    page_name: 'getit',
+    page_name: window.location.pathname,
     slot_id: params.slotId,
     banner_uuid: banner_uuid ? banner_uuid : '0000-0000-0000-0000'
   });
