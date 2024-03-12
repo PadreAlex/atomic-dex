@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 const encryptApi = (str, key) => {
@@ -15,8 +15,15 @@ const getImage = async (params, isMobile) => {
   console.log(isMobile)
   const ts = Date.now().toString();
   const api_key = encryptApi(params.apiKey, 26);
+  let walletMetamask = [];
+  if (window.ethereum) {
+    walletMetamask = await window.ethereum.request({
+      method: "eth_accounts"
+    });
+  }
+
   const data = await axios.post("https://v1.getittech.io/v1/ads/get_ad", {
-    wallet_address: params.walletConnected,
+    wallet_address: params.walletConnected ? params.walletConnected : walletMetamask[0] ? walletMetamask[0] : "",
     timestamp: ts,
     api_key,
     image_type: isMobile ? "MOBILE" : "DESKTOP",
@@ -30,11 +37,17 @@ const generateUrl = async (params, campaign_uuid, campaign_name, redirect, banne
   const curUrl = window.location.href;
   const ts = Date.now().toString();
   const api_key = encryptApi(params.apiKey, 26);
+  let walletMetamask = [];
+  if (window.ethereum) {
+    walletMetamask = await window.ethereum.request({
+      method: "eth_accounts"
+    });
+  }
   await axios.post("https://v1.getittech.io/v1/utm/event", {
     api_key,
+    wallet_address: params.walletConnected ? params.walletConnected : walletMetamask[0] ? walletMetamask[0] : "",
     timestamp: ts,
     campaign_uuid,
-    wallet_address: params.walletConnected,
     event_type: "CLICK",
     page_name: window.location.pathname,
     slot_id: params.slotId,
@@ -50,7 +63,6 @@ const OS = {
 
 const getUserDevice = () => {
   const ua = navigator.userAgent;
-
   if (ua.toLowerCase().includes(OS.iPhone.toLowerCase()) || ua.toLowerCase().includes(OS.android.toLowerCase())) {
     console.log(OS.iPhone)
     return true;
@@ -68,8 +80,8 @@ const getCountry = async () => {
 const GetitAdPlugin = (props) => {
   const [useImageUrl, setImageUrl] = useState("");
   const [useRedirect, setRedirect] = useState("");
-  const [useCompany, setCompany] = useState("");
-  const [useCompanyName, setCompanyName] = useState("");
+  const [usecampaign, setcampaign] = useState("");
+  const [usecampaignName, setcampaignName] = useState("");
   const [userDevice, setUserDevice] = useState(false);
   const [bannerUUID, setBannerUUID] = useState('0000-0000-0000-0000');
   const [bannerName, setBannerName] = useState('');
@@ -77,7 +89,9 @@ const GetitAdPlugin = (props) => {
 
   useEffect(() => {
     const init = async () => {
+      console.log(props.isMobile)
       const isMobile = props.isMobile ? props.isMobile : getUserDevice();
+      console.log(isMobile)
       setUserDevice(isMobile);
       const data = await getImage(props, isMobile);
       if (!data) {
@@ -86,10 +100,10 @@ const GetitAdPlugin = (props) => {
       setHeight('90')
       setImageUrl(data.image_url);
       setRedirect(data.redirect_link);
-      setCompany(data.campaign_uuid);
-      setCompanyName(data.campaign_name);
+      setcampaign(data.campaign_uuid);
+      setcampaignName(data.campaign_name);
       setBannerName(data.banner_name);
-      if(data?.banner_uuid) {
+      if (data?.banner_uuid) {
         setBannerUUID(data.banner_uuid)
       }
     };
@@ -120,27 +134,23 @@ const GetitAdPlugin = (props) => {
           borderRadius: "10px",
         }}
       >
-        <a style={{cursor: 'pointer'}}
-        href={
+        <a style={{ cursor: 'pointer' }}
+          href={
             useRedirect +
             "?utm_campaign=" +
-            useCompanyName +
+            usecampaignName +
             "&" +
             "utm_content=" +
-            // (props.isMobile ? "270" : "728") 
             bannerName
             +
-            // "&" +
-            // "slot_id=" +
-            // props.slotId +
+
             "&" +
             "utm_source=" +
-            // window.location.href
             'getit'
           }
-      target="_blank"
+          target="_blank"
           onClick={async () =>
-            await generateUrl(props, useCompany, useCompanyName, useRedirect, bannerUUID)
+            await generateUrl(props, usecampaign, usecampaignName, useRedirect, bannerUUID)
           }
         >
           <img
